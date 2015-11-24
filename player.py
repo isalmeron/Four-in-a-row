@@ -11,8 +11,6 @@ import time
 from minimax import Minimax
 
 class Player(object):
-    """ Player object.  This class is for human players.
-    """
     type = None # possible types are "Human" and "AI"
     name = None
     color = None
@@ -42,6 +40,5 @@ class Player(object):
             print("{0}'s turn.  {0} is {1}".format(self.name, self.color))
             #return random.randint(0, 6)
             m = Minimax(state)
-            #best_move, value = m.bestMove(self.difficulty, state, self.color)
-            best_move, alpha = m.bestMove2(self.difficulty, state, self.color, rounds)
-            return best_move
+            best_alpha, alpha = m.findColumn(self.difficulty, state, self.color, rounds)
+            return best_alpha

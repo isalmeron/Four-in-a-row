@@ -9,9 +9,7 @@ import os
 import time
 from player import Player
 
-class Game(object):
-    """ Game object that holds state of Connect 4 board and game values
-    """
+class Connect4(object):
     
     board = None
     rows = 6
@@ -20,9 +18,12 @@ class Game(object):
     finished = None
     winner = None
     turn = None
+    #Player type list
     players = [None, None]
+
     players_name = ["Kasparov", "Karpov", "Deep Blue", "Rybka"]
     game_name = "Four in a Row"
+
     colors = ["x", "o"]
     emptySpace = "."
     
@@ -38,14 +39,13 @@ class Game(object):
             self.setPlayers()
         
         self.turn = self.players[0]
-        
+        # self.turn = random.choice(self.players)
+        #Init board with rows*cols spaces
+        # self.board = [[self.emptySpace]*self.cols]*self.rows
         self.board = []
-        #6 rows
         for i in range(self.rows):
             self.board.append([])
-            #7 columns
             for j in range(self.cols):
-                #fill new board with empty symbol
                 self.board[i].append(self.emptySpace)
 
 
@@ -53,12 +53,13 @@ class Game(object):
 
         for p in range(self.players.__len__()):
             print("Should Player %s be a Human or a Computer?"%(p+1))
+
             while self.players[p] == None:
                 choice = str(raw_input("Type 'H' or 'C': "))
                 if choice.lower().startswith("h"):
                     self.players[p] = Player(self.players_name[p], self.colors[p],"Human")
                 elif choice.lower().startswith("c"):
-                    diffic = int(raw_input("Enter difficulty for this AI (1 - 4) "))
+                    diffic = int(raw_input("Enter difficulty (1 - 4) "))
                     if 1<= diffic <= 4:
                         self.players[p] = Player(self.players_name[p+2], self.colors[p],"Computer", diffic)
                 else:
@@ -73,13 +74,13 @@ class Game(object):
         else:
             self.turn = self.players[0]
 
-        # increment the rounds
+        # increment the round number
         self.rounds += 1
 
     def nextMove(self):
         player = self.turn
 
-        #6 rows * cols columns are the possible turns giving a DRAW
+        #6 rows * 7 columns are the possible turns giving a DRAW
         if self.rounds > self.rows*self.cols:
             self.finished = True
             return
@@ -88,170 +89,157 @@ class Game(object):
         move = player.move(self.board,self.rounds)
 
         for i in range(self.rows):
+            #Find empty space to put the tile
             if self.board[i][move] == self.emptySpace:
                 self.board[i][move] = player.color
                 self.switchTurn()
-                self.checkForFours()
+                self.checkWinMove()
                 self.printState(move,player)
                 return
-        #Column is full
         print("Invalid move")
         return
     
-    def checkForFours(self):
-        # for each piece in the board...
+    def checkWinMove(self):
+
         for i in range(self.rows):
             for j in range(self.cols):
                 if self.board[i][j] != self.emptySpace:
-                    # check if a vertical four-in-a-row starts at (i, j)
-                    if self.verticalCheck(i, j):
+                     #Check vertical four-in a row
+                    if self.checkVertical(i, j):
                         self.finished = True
                         return
                     
-                    # check if a horizontal four-in-a-row starts at (i, j)
-                    if self.horizontalCheck(i, j):
+                     #Check horizontal four-in a row
+                    if self.checkHorizontal(i, j):
                         self.finished = True
                         return
                     
-                    # check if a diagonal (either way) four-in-a-row starts at (i, j)
-                    # also, get the slope of the four if there is one
-                    diag_fours, slope = self.diagonalCheck(i, j)
+                    #Check diagonal four-in a row
+                    diag_fours, slope = self.checkDiagonal(i, j)
                     if diag_fours:
-                        print slope
                         self.finished = True
                         return
         
-    def verticalCheck(self, row, col):
-        #print("checking vert")
-        fourInARow = False
-        consecutiveCount = 0
+    def checkVertical(self, row, col):
+        tiles = 0
     
         for i in range(row, self.rows):
             if self.board[i][col].lower() == self.board[row][col].lower():
-                consecutiveCount += 1
+                tiles += 1
             else:
                 break
     
-        if consecutiveCount >= 4:
-            fourInARow = True
+        if tiles >= 4:
             if self.players[0].color.lower() == self.board[row][col].lower():
                 self.winner = self.players[0]
             else:
                 self.winner = self.players[1]
+            return True
     
-        return fourInARow
+        return False
     
-    def horizontalCheck(self, row, col):
-        fourInARow = False
-        consecutiveCount = 0
+    def checkHorizontal(self, row, col):
+        tiles = 0
         
         for j in range(col, self.cols):
             if self.board[row][j].lower() == self.board[row][col].lower():
-                consecutiveCount += 1
+                tiles += 1
             else:
                 break
 
-        if consecutiveCount >= 4:
-            fourInARow = True
+        if tiles >= 4:
             if self.players[0].color.lower() == self.board[row][col].lower():
                 self.winner = self.players[0]
             else:
                 self.winner = self.players[1]
+            return True
 
-        return fourInARow
+        return False
     
-    def diagonalCheck(self, row, col):
-        fourInARow = False
+    def checkDiagonal(self, row, col):
         count = 0
-        slope = None
+        direction = None
 
-        # check for diagonals with positive slope
-        consecutiveCount = 0
+        tiles = 0
         j = col
         for i in range(row, self.rows):
             if j > self.rows:
                 break
-            elif self.board[i][j].lower() == self.board[row][col].lower():
-                consecutiveCount += 1
+            if self.board[i][j].lower() == self.board[row][col].lower():
+                tiles += 1
             else:
                 break
             j += 1
             
-        if consecutiveCount >= 4:
+        if tiles >= 4:
             count += 1
-            slope = 'positive'
+            direction = 1
             if self.players[0].color.lower() == self.board[row][col].lower():
                 self.winner = self.players[0]
             else:
                 self.winner = self.players[1]
 
-        # check for diagonals with negative slope
-        consecutiveCount = 0
+        tiles = 0
         j = col
         for i in range(row, -1, -1):
             if j > self.rows:
                 break
             elif self.board[i][j].lower() == self.board[row][col].lower():
-                consecutiveCount += 1
+                tiles += 1
             else:
                 break
             j += 1 # increment column when row is decremented
 
-        if consecutiveCount >= 4:
+        if tiles >= 4:
             count += 1
-            slope = 'negative'
+            direction = -1
             if self.players[0].color.lower() == self.board[row][col].lower():
                 self.winner = self.players[0]
             else:
                 self.winner = self.players[1]
 
-        if count > 0:
-            fourInARow = True
         if count == 2:
-            slope = 'both'
-        return fourInARow, slope
+            direction = 0
+        if count > 0:
+            return True, direction
+        
+        return False, direction
     
-    def findFours(self):
-        """ Finds start i,j of four-in-a-row
-            Calls highlightFours
-        """
+    def checkBoard(self):
     
         for i in range(self.rows):
             for j in range(self.cols):
                 if self.board[i][j] != self.emptySpace:
                     # check if a vertical four-in-a-row starts at (i, j)
-                    if self.verticalCheck(i, j):
-                        self.highlightFour(i, j, 'vertical')
+                    if self.checkVertical(i, j):
+                        self.markWinner(i, j, 0)
                     
                     # check if a horizontal four-in-a-row starts at (i, j)
-                    if self.horizontalCheck(i, j):
-                        self.highlightFour(i, j, 'horizontal')
+                    if self.checkHorizontal(i, j):
+                        self.markWinner(i, j, 1)
                     
                     # check if a diagonal (either way) four-in-a-row starts at (i, j)
                     # also, get the slope of the four if there is one
-                    diag_fours, slope = self.diagonalCheck(i, j)
+                    diag_fours, slope = self.checkDiagonal(i, j)
                     if diag_fours:
-                        self.highlightFour(i, j, 'diagonal', slope)
+                        self.markWinner(i, j, 2, slope)
     
-    def highlightFour(self, row, col, direction, slope=None):
-        """ This function enunciates four-in-a-rows by capitalizing
-            the character for those pieces on the board
-        """
+    def markWinner(self, row, col, direction, slope=None):
         
-        if direction == 'vertical':
+        if direction == 0:
             for i in range(4):
                 self.board[row+i][col] = self.board[row+i][col].upper()
         
-        elif direction == 'horizontal':
+        elif direction == 1:
             for i in range(4):
                 self.board[row][col+i] = self.board[row][col+i].upper()
         
-        elif direction == 'diagonal':
-            if slope == 'positive' or slope == 'both':
+        elif direction == 2:
+            if slope == 1 or slope == 0:
                 for i in range(4):
                     self.board[row+i][col+i] = self.board[row+i][col+i].upper()
         
-            elif slope == 'negative' or slope == 'both':
+            elif slope == -1 or slope == 0:
                 for i in range(4):
                     self.board[row-i][col+i] = self.board[row-i][col+i].upper()
         
