@@ -22,3 +22,7 @@ python 2.7
   :Select computer difficulty
 :If human type the column number: 1-7
 NOTE on the top of the board the last play of the computer is printed to keep track
+
+Documents folder contains:
+report.pdf: Report with justification and analysis of the application
+The other files are papers used as reference to build the application.
