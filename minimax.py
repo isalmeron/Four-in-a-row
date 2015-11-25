@@ -2,7 +2,6 @@
 # Connect Four
 #
 # Irving Salmeron
-# Juan Pablo Meouchi
 
 import random, copy
 from pprint import pprint

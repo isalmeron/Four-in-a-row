@@ -1,8 +1,7 @@
 # Python Final Project
 # Connect Four
 #
-# Irving Salmer4n
-# Juan Pablo Meouchi
+# Irving Salmeron
 
 import random
 import os

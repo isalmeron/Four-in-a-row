@@ -2,7 +2,6 @@
 # Connect Four
 #
 # Irving Salmeron
-# Juan Pablo Meouchi
 
 from connect4 import *
 
