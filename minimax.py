@@ -29,8 +29,8 @@ class Minimax(object):
         else:
             opp_player = self.colors[0]
 
-        self.fd = open("legal_moves-%s.txt"%rounds,"a",1)
-        self.fd.write("Initial state\n")
+        # self.fd = open("legal_moves-%s.txt"%rounds,"a",1)
+        # self.fd.write("Initial state\n")
 
         legal_moves = self.search(depth, state, curr_player)
 
@@ -46,8 +46,8 @@ class Minimax(object):
                         if legal_moves[i] > alpha:
                             alpha = legal_moves[i]
 
-        self.fd.write("ALPHA: %s\n"%alpha)
-        pprint(legal_moves,self.fd)
+        # self.fd.write("ALPHA: %s\n"%alpha)
+        # pprint(legal_moves,self.fd)
         
         #Get the best moves found with best alpha        
         best_moves = []
@@ -55,17 +55,17 @@ class Minimax(object):
             if legal_moves[c] == alpha and self.isValid(c,state):
                 best_moves.append(c)
 
-        self.fd.write("BEST MOVE:\n")
-        pprint(best_moves,self.fd)
-        self.fd.close()
+        # self.fd.write("BEST MOVE:\n")
+        # pprint(best_moves,self.fd)
+        # self.fd.close()
 
         #If there are several moves with same alpha alphaValue choose a random one
         return random.choice(best_moves), alpha
         
     def search(self, depth, state, curr_player):
 
-        self.fd.write("DEPTH: %s\n"%depth)
-        pprint(state,self.fd)
+        # self.fd.write("DEPTH: %s\n"%depth)
+        # pprint(state,self.fd)
 
         if depth == 0 or self.isBoardFull(state):
             return [self.alphaValue(state, curr_player)]
@@ -83,22 +83,23 @@ class Minimax(object):
                 continue
             tempBoard = self.makeMove(state, c, curr_player)
             if self.endGame(tempBoard):
-                legal_columns[c] += 10000
-                continue
+                legal_columns[c] = 100
+                break
             for ch in range(self.cols):
                 if not self.isValid(ch, tempBoard):
                     continue
                 tempBoard2 = self.makeMove(tempBoard, ch, opp_player)
                 if self.endGame(tempBoard2):
-                    legal_columns[c] += -10000
-                    continue
-                alpha = self.search(depth-1, tempBoard2, curr_player)                
+                    legal_columns[c] = -100
+                    break
+                alpha = self.search(depth-1, tempBoard2, curr_player)      
+
                 legal_columns[c] += sum(alpha)
 
-                self.fd.write("ALPHA: %s COL: %s CH: %s\n\n"%(legal_columns[c],c,ch))
+                # self.fd.write("ALPHA: %s COL: %s CH: %s\n\n"%(legal_columns[c],c,ch))
 
-        self.fd.write("End Initial\nRETURN:\n")
-        pprint(legal_columns,self.fd)
+        # self.fd.write("End Initial\nRETURN:\n")
+        # pprint(legal_columns,self.fd)
         
         return legal_columns
 
@@ -139,7 +140,8 @@ class Minimax(object):
             o_color = self.colors[1]
         else:
             o_color = self.colors[0]
-        
+        # my_fours = 0
+        # opp_fours = 0
         my_fours = self.checkBoard(state, color, 4)
         my_threes = self.checkBoard(state, color, 3)
         my_twos = self.checkBoard(state, color, 2)
@@ -148,24 +150,24 @@ class Minimax(object):
         opp_threes = self.checkBoard(state, o_color, 3)
         opp_twos = self.checkBoard(state, o_color, 2)
 
-        return (my_fours*1000 + my_threes*5 + my_twos) - (opp_fours*1000 + opp_threes*5 + opp_twos)
+        return (my_fours*100 + my_threes*5 + my_twos) - (opp_fours*1000 + opp_threes*5 + opp_twos)
       
 
     #Functions to check and evaluate the current state to determine which one to chose
-    def checkBoard(self, state, color, streak):
+    def checkBoard(self, state, color, tileCount):
         count = 0
         # for each piece in the board...
         for i in range(self.rows):
             for j in range(self.cols):
                 if state[i][j].lower() == color.lower():
-                    count += self.checkVertical(i, j, state, streak)
+                    count += self.checkVertical(i, j, state, tileCount)
                     
-                    count += self.checkHorizontal(i, j, state, streak)
+                    count += self.checkHorizontal(i, j, state, tileCount)
                     
-                    count += self.checkDiagonal(i, j, state, streak)
+                    count += self.checkDiagonal(i, j, state, tileCount)
         return count
             
-    def checkVertical(self, row, col, state, streak):
+    def checkVertical(self, row, col, state, tileCount):
         consecutiveCount = 0
         for i in range(row, self.rows):
             if state[i][col].lower() == state[row][col].lower():
@@ -173,12 +175,12 @@ class Minimax(object):
             else:
                 break
     
-        if consecutiveCount >= streak:
+        if consecutiveCount >= tileCount:
             return 1
         else:
             return 0
     
-    def checkHorizontal(self, row, col, state, streak):
+    def checkHorizontal(self, row, col, state, tileCount):
         consecutiveCount = 0
         for j in range(col, self.cols):
             if state[row][j].lower() == state[row][col].lower():
@@ -186,12 +188,12 @@ class Minimax(object):
             else:
                 break
 
-        if consecutiveCount >= streak:
+        if consecutiveCount >= tileCount:
             return 1
         else:
             return 0
     
-    def checkDiagonal(self, row, col, state, streak):
+    def checkDiagonal(self, row, col, state, tileCount):
 
         total = 0
         # check for diagonals with positive slope
@@ -206,7 +208,7 @@ class Minimax(object):
                 break
             j += 1 # increment column when row is incremented
             
-        if consecutiveCount >= streak:
+        if consecutiveCount >= tileCount:
             total += 1
 
         # check for diagonals with negative slope
@@ -221,7 +223,7 @@ class Minimax(object):
                 break
             j += 1 # increment column when row is incremented
 
-        if consecutiveCount >= streak:
+        if consecutiveCount >= tileCount:
             total += 1
 
         return total

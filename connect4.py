@@ -271,7 +271,7 @@ class Connect4(object):
         os.system( [ 'clear', 'cls' ][ os.name == 'nt' ] )
         #Welcome message to game
         print "\t\tWelcome to {0}!".format(self.game_name)
-        print "\t\tBy Irving and Juan Pablo.\n\n"
+        print "\t\tBy Irving Salmeron.\n\n"
 
         if player != None:
             if player.type.lower().startswith("c"):
