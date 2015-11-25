@@ -14,7 +14,7 @@ class Minimax(object):
     rows = 6
     cols = 7
     emptySpace = "."
-    start_alpha = -1000
+    start_alpha = -99999999
 
     fd = None
     
@@ -36,7 +36,7 @@ class Minimax(object):
 
         #If a winner move then alpha=1000 if lose move alpha(beta) =-1000
         #Ensures it gets a value without an exception even if legal_moves its empty
-        alpha = max(legal_moves) if legal_moves.__len__() > 0 else -99999999
+        alpha = max(legal_moves) if legal_moves.__len__() > 0 else -start_alpha
         #It may be that alpha=0 cause it is not a legal move but gt the negative values
         if alpha == 0:
             alpha = min(legal_moves)
@@ -83,18 +83,21 @@ class Minimax(object):
                 continue
             tempBoard = self.makeMove(state, c, curr_player)
             if self.endGame(tempBoard):
-                legal_columns[c] = 100
+                legal_columns[c] = start_alpha
                 break
             for ch in range(self.cols):
                 if not self.isValid(ch, tempBoard):
                     continue
                 tempBoard2 = self.makeMove(tempBoard, ch, opp_player)
                 if self.endGame(tempBoard2):
-                    legal_columns[c] = -100
+                    legal_columns[c] = -start_alpha
                     break
                 alpha = self.search(depth-1, tempBoard2, curr_player)      
 
-                legal_columns[c] += sum(alpha)
+                if sum(alpha)>89999999:
+                    legal_columns[c] = start_alpha
+                else:
+                    legal_columns[c] += sum(alpha)
 
                 # self.fd.write("ALPHA: %s COL: %s CH: %s\n\n"%(legal_columns[c],c,ch))
 

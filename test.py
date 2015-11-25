@@ -20,7 +20,7 @@ print "Example 1\n"
 printState(board)
 m = Minimax(board)
 
-print m.findColumn(1, board, "o", 6)
+print m.findColumn(2, board, "o", 6)
 
 board = [["x","x","x",".","o","x","x"]
 		,["x","o","x",".","o","o","o"]
@@ -32,4 +32,4 @@ print "Example 2\n"
 printState(board)
 m = Minimax(board)
 
-print m.findColumn(1, board, "o", 8)
+print m.findColumn(2, board, "o", 8)
